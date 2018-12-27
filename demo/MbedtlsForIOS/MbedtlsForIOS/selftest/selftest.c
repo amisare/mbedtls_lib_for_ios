@@ -80,11 +80,11 @@
 #if defined(MBEDTLS_CHECK_PARAMS)
 #include "mbedtls/platform_util.h"
 void mbedtls_param_failed( const char *failure_condition,
-                           const char *file,
-                           int line )
+                          const char *file,
+                          int line )
 {
     mbedtls_printf( "%s:%i: Input param failed - %s\n",
-                    file, line, failure_condition );
+                   file, line, failure_condition );
     mbedtls_exit( MBEDTLS_EXIT_FAILURE );
 }
 #endif
@@ -94,29 +94,29 @@ static int test_snprintf( size_t n, const char ref_buf[10], int ref_ret )
     int ret;
     char buf[10] = "xxxxxxxxx";
     const char ref[10] = "xxxxxxxxx";
-
+    
     ret = mbedtls_snprintf( buf, n, "%s", "123" );
     if( ret < 0 || (size_t) ret >= n )
         ret = -1;
-
+    
     if( strncmp( ref_buf, buf, sizeof( buf ) ) != 0 ||
-        ref_ret != ret ||
-        memcmp( buf + n, ref + n, sizeof( buf ) - n ) != 0 )
+       ref_ret != ret ||
+       memcmp( buf + n, ref + n, sizeof( buf ) - n ) != 0 )
     {
         return( 1 );
     }
-
+    
     return( 0 );
 }
 
 static int run_test_snprintf( void )
 {
     return( test_snprintf( 0, "xxxxxxxxx",  -1 ) != 0 ||
-            test_snprintf( 1, "",           -1 ) != 0 ||
-            test_snprintf( 2, "1",          -1 ) != 0 ||
-            test_snprintf( 3, "12",         -1 ) != 0 ||
-            test_snprintf( 4, "123",         3 ) != 0 ||
-            test_snprintf( 5, "123",         3 ) != 0 );
+           test_snprintf( 1, "",           -1 ) != 0 ||
+           test_snprintf( 2, "1",          -1 ) != 0 ||
+           test_snprintf( 3, "12",         -1 ) != 0 ||
+           test_snprintf( 4, "123",         3 ) != 0 ||
+           test_snprintf( 5, "123",         3 ) != 0 );
 }
 
 /*
@@ -131,24 +131,24 @@ static void create_entropy_seed_file( void )
     int result;
     size_t output_len = 0;
     unsigned char seed_value[MBEDTLS_ENTROPY_BLOCK_SIZE];
-
+    
     /* Attempt to read the entropy seed file. If this fails - attempt to write
      * to the file to ensure one is present. */
     result = mbedtls_platform_std_nv_seed_read( seed_value,
-                                                    MBEDTLS_ENTROPY_BLOCK_SIZE );
+                                               MBEDTLS_ENTROPY_BLOCK_SIZE );
     if( 0 == result )
         return;
-
+    
     result = mbedtls_platform_entropy_poll( NULL,
-                                            seed_value,
-                                            MBEDTLS_ENTROPY_BLOCK_SIZE,
-                                            &output_len );
+                                           seed_value,
+                                           MBEDTLS_ENTROPY_BLOCK_SIZE,
+                                           &output_len );
     if( 0 != result )
         return;
-
+    
     if( MBEDTLS_ENTROPY_BLOCK_SIZE != output_len )
         return;
-
+    
     mbedtls_platform_std_nv_seed_write( seed_value, MBEDTLS_ENTROPY_BLOCK_SIZE );
 }
 #endif
@@ -278,11 +278,11 @@ const selftest_t selftests[] =
 #if defined(MBEDTLS_PKCS5_C)
     {"pkcs5", mbedtls_pkcs5_self_test},
 #endif
-/* Slower test after the faster ones */
+    /* Slower test after the faster ones */
 #if defined(MBEDTLS_TIMING_C)
     {"timing", mbedtls_timing_self_test},
 #endif
-/* Heap test comes last */
+    /* Heap test comes last */
 #if defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C)
     {"memory_buffer_alloc", mbedtls_memory_buffer_alloc_free_and_self_test},
 #endif
@@ -290,7 +290,7 @@ const selftest_t selftests[] =
 };
 #endif /* MBEDTLS_SELF_TEST */
 
-int selftest(char *argv[] )
+int selftest_main( int argc, char *argv[] )
 {
 #if defined(MBEDTLS_SELF_TEST)
     const selftest_t *test;
@@ -303,7 +303,7 @@ int selftest(char *argv[] )
     unsigned char buf[1000000];
 #endif
     void *pointer;
-
+    
     /*
      * The C standard doesn't guarantee that all-bits-0 is the representation
      * of a NULL pointer. We do however use that in our code for initializing
@@ -315,7 +315,7 @@ int selftest(char *argv[] )
         mbedtls_printf( "all-bits-zero is not a NULL pointer\n" );
         mbedtls_exit( MBEDTLS_EXIT_FAILURE );
     }
-
+    
     /*
      * Make sure we have a snprintf that correctly zero-terminates
      */
@@ -325,28 +325,31 @@ int selftest(char *argv[] )
         mbedtls_exit( MBEDTLS_EXIT_FAILURE );
     }
     
-    if( strcmp( *argv, "--quiet" ) == 0 ||
-       strcmp( *argv, "-q" ) == 0 )
+    for( argp = argv + ( argc >= 1 ? 1 : argc ); *argp != NULL; ++argp )
     {
-        v = 0;
-        argp = argv;
+        if( strcmp( *argp, "--quiet" ) == 0 ||
+           strcmp( *argp, "-q" ) == 0 )
+        {
+            v = 0;
+        }
+        else if( strcmp( *argp, "--exclude" ) == 0 ||
+                strcmp( *argp, "-x" ) == 0 )
+        {
+            exclude_mode = 1;
+        }
+        else
+            break;
     }
-    else if( strcmp( *argv, "--exclude" ) == 0 ||
-            strcmp( *argv, "-x" ) == 0 )
-    {
-        exclude_mode = 1;
-        argp = argv;
-    }
-
+    
     if( v != 0 )
         mbedtls_printf( "\n" );
-
+    
 #if defined(MBEDTLS_SELF_TEST)
-
+    
 #if defined(MBEDTLS_MEMORY_BUFFER_ALLOC_C)
     mbedtls_memory_buffer_alloc_init( buf, sizeof(buf) );
 #endif
-
+    
     if( *argp != NULL && exclude_mode == 0 )
     {
         /* Run the specified tests */
@@ -373,7 +376,7 @@ int selftest(char *argv[] )
     }
     else
     {
-    /* Run all the tests except excluded ones */
+        /* Run all the tests except excluded ones */
         for( test = selftests; test->name != NULL; test++ )
         {
             if( exclude_mode )
@@ -398,16 +401,16 @@ int selftest(char *argv[] )
             suites_tested++;
         }
     }
-
+    
 #else
     (void) exclude_mode;
     mbedtls_printf( " MBEDTLS_SELF_TEST not defined.\n" );
 #endif
-
+    
     if( v != 0 )
     {
         mbedtls_printf( "  Executed %d test suites\n\n", suites_tested );
-
+        
         if( suites_failed > 0)
         {
             mbedtls_printf( "  [ %d tests FAIL ]\n\n", suites_failed );
@@ -421,10 +424,10 @@ int selftest(char *argv[] )
         fflush( stdout ); getchar();
 #endif
     }
-
+    
     if( suites_failed > 0)
         mbedtls_exit( MBEDTLS_EXIT_FAILURE );
-
+    
     /* return() is here to prevent compiler warnings */
     return( MBEDTLS_EXIT_SUCCESS );
 }

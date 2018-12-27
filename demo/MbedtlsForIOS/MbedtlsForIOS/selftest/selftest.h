@@ -9,6 +9,6 @@
 #ifndef selftest_h
 #define selftest_h
 
-int selftest(char *argv[] );
+int selftest_main( int argc, char *argv[] );
 
 #endif /* selftest_h */

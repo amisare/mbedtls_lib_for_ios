@@ -19,8 +19,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
 //    selftest_main(0, 0);
-    char *argv = "-x";
-    selftest(&argv);
+    char *argv = NULL;
+    selftest_main( 0, &argv );
 }
 
 
