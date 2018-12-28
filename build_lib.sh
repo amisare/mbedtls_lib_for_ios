@@ -18,7 +18,8 @@ create_directory() {
 fetch_mbedtls() {
     git clone https://github.com/ARMmbed/mbedtls.git mbedtls
     git -C mbedtls checkout mbedtls-${VERSION_TAG}
-    git status
+    status=$(git -C mbedtls status)
+    echo -e "\nmbedtls git status:\n${status}\n"
 }
 
 run_cmake() {
