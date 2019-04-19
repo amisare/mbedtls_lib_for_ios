@@ -1,7 +1,7 @@
 #!/bin/sh
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-VERSION_TAG="2.7.9"
+VERSION_TAG="2.7.10"
 
 create_directory() {
     rm -rf build/*
