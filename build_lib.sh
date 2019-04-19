@@ -1,7 +1,7 @@
 #!/bin/sh
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-VERSION_TAG="2.16.1"
+VERSION_TAG="2.7.0"
 
 create_directory() {
     rm -rf build/*
@@ -37,14 +37,14 @@ main_func() {
 
     run_cmake 'DEVICE'
     make
-    cp -Rf ${DIR}/build/library/libmbe* ${DIR}/target/mbedtls_device/library/
-    cp -Rf ${DIR}/build/include/mbedtls/* ${DIR}/target/mbedtls_device/include/
+    cp -Rf ${DIR}/build/library/libmbed* ${DIR}/target/mbedtls_device/library/
+    cp -Rf ${DIR}/mbedtls/include/mbedtls/* ${DIR}/target/mbedtls_device/include/
     make clean
 
     run_cmake 'SIMULATOR'
     make
-    cp -Rf ${DIR}/build/library/libmbe* ${DIR}/target/mbedtls_simulator/library/
-    cp -Rf ${DIR}/build/include/mbedtls/* ${DIR}/target/mbedtls_simulator/include/
+    cp -Rf ${DIR}/build/library/libmbed* ${DIR}/target/mbedtls_simulator/library/
+    cp -Rf ${DIR}/mbedtls/include/mbedtls/* ${DIR}/target/mbedtls_simulator/include/
     make clean
 
     lipo ${DIR}/target/mbedtls_device/library/libmbedcrypto.a ${DIR}/target/mbedtls_simulator/library/libmbedcrypto.a  -create -output ${DIR}/target/mbedtls/library/libmbedcrypto.a
