@@ -28,7 +28,6 @@ massif-*
 *.dir/
 
 # Generate folder
-/target
 /mbedtls
 /build
 .vscode
